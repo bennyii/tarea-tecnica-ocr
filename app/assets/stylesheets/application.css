@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Fondo Principal y Superficies */
+  /* Fondo Principal*/
   --bg-app: #080c14;
   --bg-surface: #0f172a;
   --bg-surface-elevated: #1e293b;
@@ -24,13 +24,13 @@
   --border-medium: #334155;
   --border-focus: #6366f1;
 
-  /* Primario: Índigo Eléctrico con Brillo */
+  /* Primario */
   --primary: #6366f1;
   --primary-hover: #4f46e5;
   --primary-light: rgba(99, 102, 241, 0.15);
   --primary-glow: rgba(99, 102, 241, 0.35);
 
-  /* Acentos de Estado */
+  /* Colores de Estado */
   --success: #10b981;
   --success-light: #34d399;
   --success-bg: rgba(16, 185, 129, 0.12);
@@ -63,7 +63,9 @@
   --radius-full: 9999px;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -73,7 +75,7 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-app);
   background-image: radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-                    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
   background-attachment: fixed;
   color: var(--text-main);
   line-height: 1.55;
@@ -92,7 +94,7 @@ body {
   flex: 1;
 }
 
-/* Navbar con Glassmorphism */
+/* Navbar  */
 .app-navbar {
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
@@ -277,7 +279,8 @@ body {
   border-color: var(--info-border);
 }
 
-.badge-processing, .badge-uploaded {
+.badge-processing,
+.badge-uploaded {
   background: var(--warning-bg);
   color: var(--warning-text);
   border-color: var(--warning-border);
@@ -289,7 +292,7 @@ body {
   border-color: var(--danger-border);
 }
 
-/* Tarjetas de Métricas (KPIs) en Index */
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -383,7 +386,8 @@ body {
   transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
 }
 
-.dropzone-container:hover, .dropzone-container.dragover {
+.dropzone-container:hover,
+.dropzone-container.dragover {
   border-color: var(--primary);
   background: rgba(99, 102, 241, 0.08);
   box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
@@ -509,26 +513,24 @@ body {
   color: var(--success-light);
 }
 
-/* Spinner minimalista para Processing */
+/* Spinner  */
 .processing-box {
   text-align: center;
   padding: 3.5rem 2rem;
   position: relative;
 }
 
-/* Anillo único con gradiente cónico — elegante y limpio */
+/* Anillo  */
 .ring-spinner {
   width: 56px;
   height: 56px;
   border-radius: 50%;
   margin: 0 auto 2rem auto;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    transparent 60%,
-    #6366f1 80%,
-    #a5b4fc 100%
-  );
+  background: conic-gradient(from 0deg,
+      transparent 0%,
+      transparent 60%,
+      #6366f1 80%,
+      #a5b4fc 100%);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
   animation: ring-rotate 1s linear infinite;
@@ -558,13 +560,25 @@ body {
 }
 
 @keyframes ring-rotate {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes indeterminate-progress {
-  0% { left: -40%; width: 30%; }
-  50% { width: 60%; }
-  100% { left: 100%; width: 30%; }
+  0% {
+    left: -40%;
+    width: 30%;
+  }
+
+  50% {
+    width: 60%;
+  }
+
+  100% {
+    left: 100%;
+    width: 30%;
+  }
 }
 
 /* Alertas */
@@ -622,9 +636,11 @@ body {
   .app-container {
     padding: 1.25rem 1rem;
   }
+
   .card {
     padding: 1.25rem;
   }
+
   .form-grid {
     grid-template-columns: 1fr;
   }

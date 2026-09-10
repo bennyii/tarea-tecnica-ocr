@@ -51,7 +51,7 @@ class GeminiOcrService
     @client = client || default_connection
     @api_key = ENV.fetch("GEMINI_API_KEY", nil)
     # Usamos un modelo flash moderno y multimodal compatible con imágenes/PDFs
-    @model = ENV.fetch("GEMINI_MODEL", "gemini-2.5-flash")
+    @model = ENV.fetch("GEMINI_MODEL", "gemini-3.5-flash-lite")
   end
 
   def call
@@ -118,6 +118,7 @@ def execute_request
       generationConfig: {
         response_mime_type: "application/json",
         temperature: 0.0
+        thinkingConfig: { thinkingLevel: "low" }
       }
     }
   end
