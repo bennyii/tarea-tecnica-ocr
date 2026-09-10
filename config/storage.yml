@@ -25,3 +25,12 @@ local:
 #   service: Mirror
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
+
+
+cloudflare:
+  service: S3
+  endpoint: <%= "https://#{ENV['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com" %>
+  access_key_id: <%= ENV['R2_ACCESS_KEY_ID'] %>
+  secret_access_key: <%= ENV['R2_SECRET_ACCESS_KEY'] %>
+  region: auto
+  bucket: <%= ENV['R2_BUCKET'] %>
