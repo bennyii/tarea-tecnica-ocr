@@ -11,7 +11,7 @@ class ProcessReceiptJob < ApplicationJob
     receipt.update!(status: "processing")
     execute_pipeline(receipt)
   rescue GeminiOcrService::TransientError
-    raise 
+    raise
   rescue StandardError => e
     handle_failure(receipt, e)
   end
@@ -19,7 +19,6 @@ class ProcessReceiptJob < ApplicationJob
   private
 
   def execute_pipeline(receipt)
-   
     ai_result = GeminiOcrService.call(receipt)
 
     if ai_result[:error].present?

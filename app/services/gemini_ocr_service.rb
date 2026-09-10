@@ -68,27 +68,25 @@ class GeminiOcrService
 
   private
 
-  RETRYABLE_STATUSES = [429, 503].freeze
+  RETRYABLE_STATUSES = [ 429, 503 ].freeze
 
-def execute_request
+  def execute_request
     file_data = @receipt.file.download
     raw_mime_type = @receipt.file.content_type
 
-    # Normalización de MIME types para asegurar compatibilidad estricta con Gemini
     mime_type = case raw_mime_type
-                when "image/jpg" then "image/jpeg"
-                when "image/png", "image/jpeg", "application/pdf", "image/webp", "image/heic" then raw_mime_type
-                else
-                  # Fallback basado en la extensión del archivo original si el content_type es dudoso
+    when "image/jpg" then "image/jpeg"
+    when "image/png", "image/jpeg", "application/pdf", "image/webp", "image/heic" then raw_mime_type
+    else
                   filename = @receipt.file.filename.to_s.downcase
                   if filename.end_with?(".png")
                     "image/png"
-                  elif filename.end_with?(".pdf")
+                  elsif filename.end_with?(".pdf")
                     "application/pdf"
                   else
-                    "image/jpeg" # Por defecto asumimos jpeg para imágenes
+                    "image/jpeg"
                   end
-                end
+    end
 
     base64_file = Base64.strict_encode64(file_data)
 
@@ -101,7 +99,9 @@ def execute_request
 
   def request_payload(base64_file, mime_type)
     {
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      system_instruction: {
+        parts: [ { text: SYSTEM_PROMPT } ]
+      },
       contents: [
         {
           parts: [
@@ -118,7 +118,6 @@ def execute_request
       generationConfig: {
         response_mime_type: "application/json",
         temperature: 0.0
-        thinkingConfig: { thinkingLevel: "low" }
       }
     }
   end

@@ -17,19 +17,19 @@ module ReceiptsHelper
   def receipt_status_badge(status)
     status_str = status.to_s
     label, css_class = case status_str
-                       when "saved"
+    when "saved"
                          [ "Guardada", "badge-saved" ]
-                       when "ready_for_review"
+    when "ready_for_review"
                          [ "Por revisar", "badge-ready_for_review" ]
-                       when "processing"
+    when "processing"
                          [ "Procesando", "badge-processing" ]
-                       when "uploaded"
+    when "uploaded"
                          [ "Subida", "badge-uploaded" ]
-                       when "failed"
+    when "failed"
                          [ "Revisar", "badge-failed" ]
-                       else
+    else
                          [ status_str.humanize, "badge-ready_for_review" ]
-                       end
+    end
 
     content_tag(:span, label, class: "badge #{css_class}")
   end
