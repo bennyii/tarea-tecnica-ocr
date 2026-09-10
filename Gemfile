@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "aws-sdk-s3", require: false
 gem "faraday"
 gem "dotenv-rails", groups: [ :development, :test ]
 gem "json", "< 3.0"
