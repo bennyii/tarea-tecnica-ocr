@@ -1,0 +1,88 @@
+<% content_for :title, "Procesando Boleta | Boletas App" %>
+
+<div style="max-width: 480px; margin: 3rem auto;">
+  <div class="card processing-box">
+
+    <%# Minimal ring spinner %>
+    <div class="ring-spinner" aria-hidden="true"></div>
+
+    <h1 class="card-title" id="processing-title">Analizando comprobante</h1>
+
+    <p class="card-subtitle" id="processing-subtitle" style="margin-top: 0.5rem; margin-bottom: 1.75rem; line-height: 1.6;">
+      Estamos leyendo los detalles de la boleta para organizar la información
+      automáticamente. Esto tomará solo unos segundos.
+    </p>
+
+    <%# Barra de progreso %>
+    <div class="ai-progress-track">
+      <div class="ai-progress-bar"></div>
+    </div>
+
+    <div style="font-size: 0.8rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; margin-top: 0.75rem;" id="polling-timer">
+      Iniciando...
+    </div>
+
+    <%# Fallback tras timeout %>
+    <div id="fallback-action" style="display: none; margin-top: 1.75rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;">
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.75rem;">
+        ¿Está tardando más de lo habitual?
+      </p>
+      <%= link_to "Continuar manualmente →", edit_receipt_path(@receipt),
+          class: "btn btn-secondary btn-sm",
+          id: "manual-redirect-btn" %>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const statusUrl = "<%= status_receipt_path(@receipt, format: :json) %>";
+    const editUrl   = "<%= edit_receipt_path(@receipt) %>";
+    let seconds = 0;
+    const maxSeconds = 60;
+
+    const interval = setInterval(checkStatus, 2000);
+
+    function checkStatus() {
+      seconds += 2;
+      const timerEl = document.getElementById('polling-timer');
+      if (timerEl) timerEl.textContent = 'Procesando (' + seconds + 's)…';
+
+      fetch(statusUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function(data) {
+        if (data.completed || data.status === 'ready_for_review' || data.status === 'failed' || data.status === 'saved') {
+          clearInterval(interval);
+          const title    = document.getElementById('processing-title');
+          const subtitle = document.getElementById('processing-subtitle');
+          if (title)    title.textContent    = '¡Listo!';
+          if (subtitle) subtitle.textContent = 'Redirigiendo a la revisión de datos…';
+          setTimeout(function() {
+            window.location.href = data.edit_url || editUrl;
+          }, 350);
+        }
+      })
+      .catch(function(err) {
+        console.warn('Status poll warning:', err);
+      });
+
+      if (seconds >= 10) {
+        const fallback = document.getElementById('fallback-action');
+        if (fallback) fallback.style.display = 'block';
+      }
+
+      if (seconds >= maxSeconds) {
+        clearInterval(interval);
+        window.location.href = editUrl;
+      }
+    }
+  })();
+</script>

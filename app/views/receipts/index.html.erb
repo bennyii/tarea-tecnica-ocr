@@ -1,0 +1,99 @@
+<% content_for :title, "Boletas Guardadas" %>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+  <div>
+    <h1 class="card-title" style="font-size: 1.6rem;">Boletas guardadas</h1>
+    <p class="card-subtitle">Registro de comprobantes verificados en tu sistema.</p>
+  </div>
+
+  <%= link_to "Subir nueva boleta", new_receipt_path, class: "btn btn-primary" %>
+</div>
+
+<% if @receipts.any? %>
+  <% total_monto = @receipts.sum { |r| r.total_amount || 0 } %>
+  <% total_iva = @receipts.sum { |r| r.tax_amount || 0 } %>
+
+  <!-- Métricas Estilizadas -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Comprobantes</div>
+      <div class="stat-value"><%= @receipts.size %></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Monto Total Facturado</div>
+      <div class="stat-value" style="color: var(--success-light);"><%= format_clp(total_monto) %></div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">IVA Crédito Fiscal (19%)</div>
+      <div class="stat-value" style="color: var(--info);"><%= format_clp(total_iva) %></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-wrapper" style="border: none;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Comercio</th>
+            <th>RUT Emisor</th>
+            <th>Folio</th>
+            <th style="text-align: right;">Total CLP</th>
+            <th style="text-align: center;">Estado</th>
+            <th style="text-align: right;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @receipts.each do |receipt| %>
+            <tr>
+              <td style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">
+                <%= receipt.purchase_date ? receipt.purchase_date.strftime("%d/%m/%Y") : "—" %>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: var(--text-main);">
+                  <%= receipt.merchant_name.presence || "Sin comercio" %>
+                </div>
+                <div style="font-size: 0.775rem; color: var(--text-muted);">
+                  <%= receipt.document_type.presence || "Boleta Electrónica" %>
+                </div>
+              </td>
+              <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted);">
+                <%= receipt.rut_emisor.presence || "—" %>
+              </td>
+              <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted);">
+                <%= receipt.document_number.presence || "—" %>
+              </td>
+              <td style="text-align: right; font-weight: 700; color: var(--success-light); font-size: 0.95rem; white-space: nowrap;">
+                <%= format_clp(receipt.total_amount) %>
+              </td>
+              <td style="text-align: center;">
+                <%= receipt_status_badge(receipt.status) %>
+              </td>
+              <td style="text-align: right; white-space: nowrap;">
+                <div style="display: inline-flex; gap: 0.35rem; align-items: center;">
+                  <%= link_to "Ver", receipt_path(receipt), class: "btn btn-secondary btn-sm" %>
+                  <%= link_to "Editar", edit_receipt_path(receipt), class: "btn btn-secondary btn-sm" %>
+                  <%= button_to "Eliminar", receipt_path(receipt),
+                      method: :delete,
+                      class: "btn btn-danger btn-sm",
+                      data: { turbo_confirm: "¿Eliminar esta boleta?" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% else %>
+  <div class="card" style="text-align: center; padding: 4.5rem 1.5rem;">
+    <h2 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem;">No hay boletas guardadas</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem;">
+      Sube un comprobante para comenzar tu registro.
+    </p>
+    <%= link_to "Subir primera boleta", new_receipt_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title><%= content_for?(:title) ? yield(:title) : "Boletas" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= yield :head %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="app-navbar">
+      <div class="navbar-inner">
+        <%= link_to root_path, class: "nav-brand" do %>
+          Boletas
+        <% end %>
+
+        <nav>
+          <ul class="nav-menu">
+            <li>
+              <%= link_to "Guardadas", receipts_path, class: "nav-link #{'active' if current_page?(receipts_path)}" %>
+            </li>
+            <li>
+              <%= link_to "Subir boleta", new_receipt_path, class: "btn btn-primary btn-sm" %>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="app-container">
+      <% if notice.present? %>
+        <div class="alert alert-success" role="alert"><%= notice %></div>
+      <% end %>
+
+      <% if alert.present? %>
+        <div class="alert alert-danger" role="alert"><%= alert %></div>
+      <% end %>
+
+      <% if flash[:warning].present? %>
+        <div class="alert alert-warning" role="alert"><%= flash[:warning] %></div>
+      <% end %>
+
+      <% if flash[:info].present? %>
+        <div class="alert alert-info" role="alert"><%= flash[:info] %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
+    <footer class="app-footer">
+      <p>Gestión de Boletas y Comprobantes</p>
+    </footer>
+  </body>
+</html>
