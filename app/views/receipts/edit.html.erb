@@ -11,8 +11,12 @@
 
       <% if @receipt.failed? %>
         <div class="alert alert-warning" style="font-size: 0.8125rem;">
-          La extracción automática falló. Completa los datos manualmente.
+          La extracción automática falló. Completa los datos manualmente o reintenta el procesamiento.
         </div>
+        <%= button_to "Reintentar con IA", reprocess_receipt_path(@receipt),
+            method: :post,
+            class: "btn btn-secondary btn-sm",
+            style: "margin-bottom: 1rem;" %>
       <% end %>
 
       <div class="document-preview-box">

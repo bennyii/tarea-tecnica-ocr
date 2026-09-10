@@ -117,7 +117,8 @@ class GeminiOcrService
       ],
       generationConfig: {
         response_mime_type: "application/json",
-        temperature: 0.0
+        temperature: 0.0,
+        thinkingConfig: { thinkingLevel: "low" }
       }
     }
   end
