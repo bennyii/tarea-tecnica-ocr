@@ -83,7 +83,7 @@ class ReceiptsController < ApplicationController
     %w[ready_for_review failed saved].include?(@receipt.status)
   end
 
-  # METODO PARA DETECTAR ARCHIVOS DUPLICADOS
+# METODO PARA DETECTAR ARCHIVOS DUPLICADOS
 def find_duplicate_receipt(uploaded_file)
   return nil unless uploaded_file.respond_to?(:read)
 
