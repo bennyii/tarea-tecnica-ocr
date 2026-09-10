@@ -107,12 +107,21 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.7)
     erubi (1.13.1)
     et-orbi (1.4.2)
       tzinfo
+    faraday (2.14.3)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-net_http (3.4.4)
+      net-http (~> 0.5)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
     ffi (1.17.4-arm-linux-gnu)
@@ -175,6 +184,8 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.4)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
     net-imap (0.6.7)
       date
       net-protocol
@@ -388,6 +399,8 @@ DEPENDENCIES
   bundler-audit
   capybara
   debug
+  dotenv-rails
+  faraday
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
