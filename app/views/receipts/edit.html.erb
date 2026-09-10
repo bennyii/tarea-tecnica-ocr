@@ -1,0 +1,131 @@
+<% content_for :title, "Revisar Boleta" %>
+
+<div class="split-layout">
+  <!-- Vista previa del comprobante -->
+  <div>
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span style="font-size: 0.875rem; font-weight: 600;">Comprobante adjunto</span>
+        <%= receipt_status_badge(@receipt.status) %>
+      </div>
+
+      <% if @receipt.failed? %>
+        <div class="alert alert-warning" style="font-size: 0.8125rem;">
+          La extracción automática falló. Completa los datos manualmente.
+        </div>
+      <% end %>
+
+      <div class="document-preview-box">
+        <% if @receipt.file.attached? %>
+          <% if @receipt.file.content_type.to_s.start_with?("image/") %>
+            <%= image_tag @receipt.file, class: "document-preview-img", alt: "Comprobante" %>
+          <% elsif @receipt.file.content_type == "application/pdf" %>
+            <div style="padding: 3rem 1rem; text-align: center;">
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Documento PDF adjunto</p>
+              <%= link_to "Abrir PDF en pestaña nueva",
+                  rails_blob_path(@receipt.file, disposition: "inline"),
+                  target: "_blank",
+                  class: "btn btn-secondary btn-sm" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p style="color: var(--text-dim); padding: 2rem; font-size: 0.85rem;">Sin archivo adjunto</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de edición -->
+  <div>
+    <div class="card">
+      <div style="margin-bottom: 1.5rem;">
+        <h1 class="card-title">Revisar datos</h1>
+        <p class="card-subtitle">Verifica los datos extraídos antes de guardar.</p>
+      </div>
+
+      <%= form_with(model: @receipt, url: receipt_path(@receipt), method: :patch, local: true) do |f| %>
+        
+        <% if @receipt.errors.any? %>
+          <div class="alert alert-danger">
+            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
+              <% @receipt.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <%= f.label :merchant_name, "Comercio / Razón Social", class: "form-label" %>
+            <%= f.text_field :merchant_name, class: "form-control", placeholder: "Ej. Supermercado Lider" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :rut_emisor, "RUT Emisor", class: "form-label" %>
+            <%= f.text_field :rut_emisor, class: "form-control", placeholder: "12.345.678-9" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :purchase_date, "Fecha de emisión", class: "form-label" %>
+            <%= f.date_field :purchase_date, class: "form-control" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :document_number, "N° Folio", class: "form-label" %>
+            <%= f.text_field :document_number,
+                class: "form-control",
+                placeholder: "Ej. 004829105",
+                inputmode: "numeric",
+                pattern: "\\d+",
+                title: "Solo se permiten números (sin letras ni símbolos)" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :document_type, "Tipo de comprobante", class: "form-label" %>
+            <%= f.text_field :document_type, class: "form-control", placeholder: "Boleta Electrónica" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :net_amount, "Neto ($ CLP)", class: "form-label" %>
+            <%= f.number_field :net_amount, step: "1", class: "form-control", placeholder: "0" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :tax_amount, "IVA ($ CLP)", class: "form-label" %>
+            <%= f.number_field :tax_amount, step: "1", class: "form-control", placeholder: "0" %>
+          </div>
+
+          <div class="form-group full-width">
+            <%= f.label :total_amount, "Total ($ CLP) *", class: "form-label", style: "font-weight: 600; color: var(--text-main);" %>
+            <%= f.number_field :total_amount, step: "1", class: "form-control", placeholder: "0", required: true, style: "font-weight: 600;" %>
+          </div>
+        </div>
+
+        <!-- Botones de Acción DENTRO del formulario principal -->
+        <div style="margin-top: 1.75rem; display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+          <%= link_to "Cancelar", receipts_path, class: "btn btn-secondary" %>
+          <%= f.submit "Guardar boleta", class: "btn btn-primary", id: "save-receipt-btn" %>
+        </div>
+
+      <% end %> <!-- FIN DEL FORMULARIO PRINCIPAL -->
+
+      <!-- Botón de Descartar FUERA del formulario principal de edición -->
+      <div style="margin-top: 1rem; display: flex; justify-content: flex-start;">
+        <%= button_to "Descartar",
+            receipt_path(@receipt),
+            method: :delete,
+            class: "btn btn-danger btn-sm",
+            data: { turbo_confirm: "¿Descartar este comprobante?" } %>
+      </div>
+
+      <% if @receipt.ai_raw_response.present? %>
+        <details style="margin-top: 1.5rem; font-size: 0.8125rem;">
+          <summary style="color: var(--text-dim); cursor: pointer; user-select: none;">Respuesta cruda de la IA</summary>
+          <pre style="margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); max-height: 200px; overflow-y: auto; white-space: pre-wrap;"><%= @receipt.ai_raw_response %></pre>
+        </details>
+      <% end %>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+<% content_for :title, "#{@receipt.merchant_name.presence || 'Boleta'}" %>
+
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+  <%= link_to "← Volver a guardadas", receipts_path, class: "nav-link" %>
+
+  <div style="display: flex; gap: 0.5rem; align-items: center;">
+    <%= link_to "Editar", edit_receipt_path(@receipt), class: "btn btn-secondary btn-sm" %>
+    <%= link_to "Subir otra", new_receipt_path, class: "btn btn-secondary btn-sm" %>
+    <%= button_to "Eliminar", receipt_path(@receipt),
+        method: :delete,
+        class: "btn btn-danger btn-sm",
+        data: { turbo_confirm: "¿Eliminar esta boleta?" } %>
+  </div>
+</div>
+
+<div class="split-layout">
+  <!-- Detalle del comprobante -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <h1 class="card-title" style="font-size: 1.35rem;">
+          <%= @receipt.merchant_name.presence || "Comercio no especificado" %>
+        </h1>
+        <p class="card-subtitle">
+          <%= @receipt.document_type.presence || "Comprobante" %>
+          <% if @receipt.document_number.present? %>
+            • Folio #<%= @receipt.document_number %>
+          <% end %>
+        </p>
+      </div>
+
+      <div>
+        <%= receipt_status_badge(@receipt.status) %>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle);">
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-dim);">RUT Emisor</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; margin-top: 0.2rem;">
+          <%= @receipt.rut_emisor.presence || "—" %>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-dim);">Fecha de emisión</div>
+        <div style="font-size: 0.95rem; margin-top: 0.2rem;">
+          <%= @receipt.purchase_date ? @receipt.purchase_date.strftime("%d/%m/%Y") : "—" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="finance-breakdown">
+      <div class="finance-row">
+        <span>Neto</span>
+        <span><%= format_clp(@receipt.net_amount) %></span>
+      </div>
+
+      <div class="finance-row">
+        <span>IVA (19%)</span>
+        <span><%= format_clp(@receipt.tax_amount) %></span>
+      </div>
+
+      <div class="finance-row finance-total">
+        <span>Total</span>
+        <span><%= format_clp(@receipt.total_amount) %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documento original -->
+  <div class="card">
+    <div style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem;">Documento original</div>
+
+    <div class="document-preview-box">
+      <% if @receipt.file.attached? %>
+        <% if @receipt.file.content_type.to_s.start_with?("image/") %>
+          <%= image_tag @receipt.file, class: "document-preview-img", alt: "Comprobante" %>
+        <% elsif @receipt.file.content_type == "application/pdf" %>
+          <div style="padding: 2.5rem 1rem; text-align: center;">
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Archivo PDF</p>
+            <%= link_to "Abrir PDF ↗",
+                rails_blob_path(@receipt.file, disposition: "inline"),
+                target: "_blank",
+                class: "btn btn-secondary btn-sm" %>
+          </div>
+        <% end %>
+      <% else %>
+        <p style="color: var(--text-dim); padding: 2rem; font-size: 0.85rem;">Sin archivo adjunto</p>
+      <% end %>
+    </div>
+  </div>
+</div>

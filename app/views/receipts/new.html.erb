@@ -1,0 +1,93 @@
+<% content_for :title, "Subir Boleta" %>
+
+<div class="card" style="max-width: 540px; margin: 2rem auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <h1 class="card-title">Subir comprobante</h1>
+    <p class="card-subtitle">Formatos permitidos: JPG, PNG o PDF (hasta 10 MB).</p>
+  </div>
+
+  <%= form_with(model: @receipt, url: receipts_path, local: true, multipart: true, id: "upload-receipt-form") do |f| %>
+    
+    <% if @receipt.errors.any? %>
+      <div class="alert alert-danger" style="margin-bottom: 1.25rem;">
+        <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
+          <% @receipt.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="dropzone-container" id="dropzone" onclick="document.getElementById('receipt_file_input').click();">
+      <div class="dropzone-title">Seleccionar archivo o arrastrar aquí</div>
+      <p class="dropzone-subtitle">Haz clic para buscar en tus archivos</p>
+
+      <%= f.file_field :file,
+          id: "receipt_file_input",
+          accept: "image/jpeg,image/png,application/pdf",
+          required: true,
+          style: "display: none;",
+          onchange: "handleFileSelect(this)" %>
+
+      <div id="file-info-box" style="display: none;">
+        <div class="selected-file-badge">
+          <span id="file-name-display">archivo.pdf</span>
+          <span id="file-size-display" style="color: var(--text-dim);"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+      <%= link_to "Ver guardadas", receipts_path, class: "nav-link" %>
+      <%= f.submit "Subir comprobante", class: "btn btn-primary", id: "submit-upload-btn" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function handleFileSelect(input) {
+    const infoBox = document.getElementById('file-info-box');
+    const nameDisplay = document.getElementById('file-name-display');
+    const sizeDisplay = document.getElementById('file-size-display');
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      nameDisplay.textContent = file.name;
+      
+      const sizeKB = (file.size / 1024).toFixed(1);
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      sizeDisplay.textContent = file.size > 1024 * 1024 ? `(${sizeMB} MB)` : `(${sizeKB} KB)`;
+      infoBox.style.display = 'block';
+    } else {
+      infoBox.style.display = 'none';
+    }
+  }
+
+  const dropzone = document.getElementById('dropzone');
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      const fileInput = document.getElementById('receipt_file_input');
+
+      if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect(fileInput);
+      }
+    }, false);
+  }
+</script>

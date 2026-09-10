@@ -5,6 +5,9 @@ class Receipt < ApplicationRecord
   has_one_attached :file
 
   validates :status, presence: true, inclusion: { in: STATUSES }
+  validates :document_number,
+            format: { with: /\A\d+\z/, message: "solo puede contener números" },
+            allow_blank: true
   validate :file_presence
   validate :file_content_type
 
