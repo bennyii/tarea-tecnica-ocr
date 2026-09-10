@@ -7,10 +7,42 @@ on:
     branches: [ "main" ]
 
 jobs:
+  scan_ruby:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.10
+          bundler-cache: true
+
+      - name: Scan for common Rails security vulnerabilities (Brakeman)
+        run: bin/brakeman --no-pager
+
+      - name: Audit gems for known vulnerabilities
+        run: bundle exec bundler-audit check --update
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.10
+          bundler-cache: true
+
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
+
   test:
     runs-on: ubuntu-latest
 
-   
     services:
       postgres:
         image: postgres:15-alpine
@@ -19,7 +51,7 @@ jobs:
         env:
           POSTGRES_DB: tarea_tecnica_ocr_test
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ""
+          POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -29,30 +61,21 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: "postgres://postgres:postgres@localhost:5432/tarea_tecnica_ocr_test"
+      GEMINI_API_KEY: "dummy-key-for-ci"
+      GEMINI_MODEL: "gemini-3.5-flash-lite"
 
     steps:
-    
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    
-    - name: Install Tesseract OCR
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y tesseract-ocr libtesseract-dev
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.10
+          bundler-cache: true
 
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.4.10
-        bundler-cache: true
+      - name: Set up database
+        run: bundle exec rails db:prepare
 
-    - name: Set up database
-      run: |
-        bundle exec rails db:prepare
-
-   
-    - name: Run tests
-      run: |
-        bin/rails test
-        
+      - name: Run tests
+        run: bin/rails test
