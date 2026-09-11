@@ -1,13 +1,14 @@
 class ReceiptsController < ApplicationController
   before_action :set_receipt, only: %i[processing status edit update show reprocess destroy]
   rescue_from ActiveRecord::RecordNotFound, with: :receipt_not_found
+
   def index
     @receipts = Receipt.saved.recent
   end
 
   # METODO PARA MOSTRAR BOLETAS PENDIENTES
   def pending
-  @receipts = Receipt.where.not(status: "saved").recent
+    @receipts = Receipt.where.not(status: "saved").recent
   end
 
   # METODO PARA MOSTRAR BOLETAS
@@ -18,8 +19,14 @@ class ReceiptsController < ApplicationController
     @receipt = Receipt.new
   end
 
-  # METODO PARA EDITAR BOLETAS
-  def edit; end
+  # METODO PARA EDITAR BOLETAS (CON FILTRO ANTI-BASURA)
+  def edit
+    # Si la IA no encontró ni el comercio ni el total, asumimos que no es una boleta válida.
+    if @receipt.merchant_name.blank? && @receipt.total_amount.blank?
+      @receipt.destroy
+      redirect_to new_receipt_path, alert: "El documento subido no parece ser una boleta válida. Por favor, sube una foto clara del comprobante."
+    end
+  end
 
   # METODO PARA CREAR BOLETAS
   def create
@@ -54,7 +61,7 @@ class ReceiptsController < ApplicationController
     redirect_to edit_receipt_path(@receipt) if terminal_status?
   end
 
-  # METODO PARA DETECTAR SI LA BOLETA ESTA EN UN ESTADO TERMINAL
+  # METODO PARA CONSULTAR EL ESTADO (POLLING)
   def status
     render json: {
       id: @receipt.id,
@@ -92,24 +99,25 @@ class ReceiptsController < ApplicationController
     %w[ready_for_review failed saved].include?(@receipt.status)
   end
 
-# METODO PARA DETECTAR ARCHIVOS DUPLICADOS
-def find_duplicate_receipt(uploaded_file)
-  return nil unless uploaded_file.respond_to?(:read)
+  # METODO PARA DETECTAR ARCHIVOS DUPLICADOS
+  def find_duplicate_receipt(uploaded_file)
+    return nil unless uploaded_file.respond_to?(:read)
 
-  checksum = OpenSSL::Digest::MD5.new
-  while (chunk = uploaded_file.read(5.megabytes))
-    checksum.update(chunk)
+    checksum = OpenSSL::Digest::MD5.new
+    while (chunk = uploaded_file.read(5.megabytes))
+      checksum.update(chunk)
+    end
+    uploaded_file.rewind
+
+    encoded_checksum = checksum.base64digest
+
+    Receipt.joins(file_attachment: :blob)
+           .where(active_storage_blobs: { checksum: encoded_checksum })
+           .where(status: %w[saved ready_for_review uploaded processing failed])
+           .first
   end
-  uploaded_file.rewind
 
-  encoded_checksum = checksum.base64digest
-
-  Receipt.joins(file_attachment: :blob)
-    .where(active_storage_blobs: { checksum: encoded_checksum })
-    .where(status: %w[saved ready_for_review uploaded processing failed])
-    .first
-end
-  # METODO PARA REDIRECCIONAR AL USUARIO DEPENDIENDO EL ESTADO DEL ARCHIVO
+  # METODO PARA REDIRECCIONAR AL USUARIO DEPENDIENDO EL ESTADO DEL ARCHIVO DUPLICADO
   def redirect_to_existing(receipt)
     if receipt.saved?
       redirect_to receipt_path(receipt), flash: { warning: "Esta boleta ya fue guardada anteriormente." }
