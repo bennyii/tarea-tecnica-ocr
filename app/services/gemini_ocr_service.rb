@@ -29,6 +29,7 @@ class GeminiOcrService
     - Los montos deben ser números sin puntos de miles ni símbolo $.
     - El RUT debe incluir el guion y dígito verificador si están presentes.
     - purchase_date siempre en formato ISO YYYY-MM-DD.
+    - Si la imagen proporcionada CLARAMENTE NO es una boleta, factura o comprobante de compra (por ejemplo, es una foto de una persona, un paisaje, o un documento no relacionado), debes devolver absolutamente todos los valores como `null`.
   PROMPT
 
   FIELDS = %i[
