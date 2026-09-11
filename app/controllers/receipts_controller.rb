@@ -5,7 +5,7 @@ class ReceiptsController < ApplicationController
     @receipts = Receipt.saved.recent
   end
 
-  #METODO PARA MOSTRAR BOLETAS PENDIENTES
+  # METODO PARA MOSTRAR BOLETAS PENDIENTES
   def pending
   @receipts = Receipt.where.not(status: "saved").recent
   end
