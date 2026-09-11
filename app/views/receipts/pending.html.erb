@@ -1,0 +1,56 @@
+<% content_for :title, "Boletas Pendientes" %>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+  <div>
+    <h1 class="card-title" style="font-size: 1.6rem;">Boletas pendientes</h1>
+    <p class="card-subtitle">Comprobantes subidos que aún no han sido revisados ni guardados.</p>
+  </div>
+
+  <%= link_to " Volver a guardadas", receipts_path, class: "btn btn-secondary" %>
+</div>
+
+<% if @receipts.any? %>
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div class="table-wrapper" style="border: none;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Subida</th>
+            <th>Comercio</th>
+            <th style="text-align: center;">Estado</th>
+            <th style="text-align: right;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @receipts.each do |receipt| %>
+            <tr>
+              <td style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">
+                <%= receipt.created_at.strftime("%d/%m/%Y %H:%M") %>
+              </td>
+              <td style="font-weight: 600; color: var(--text-main);">
+                <%= receipt.merchant_name.presence || "Sin datos aún" %>
+              </td>
+              <td style="text-align: center;">
+                <%= receipt_status_badge(receipt.status) %>
+              </td>
+              <td style="text-align: right; white-space: nowrap;">
+                <div style="display: inline-flex; gap: 0.35rem; align-items: center;">
+                  <%= link_to "Editar", edit_receipt_path(receipt), class: "btn btn-secondary btn-sm" %>
+                  <%= button_to "Eliminar", receipt_path(receipt),
+                      method: :delete,
+                      class: "btn btn-danger btn-sm",
+                      data: { turbo_confirm: "¿Eliminar esta boleta pendiente?" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="card" style="text-align: center; padding: 4.5rem 1.5rem;">
+    <h2 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.4rem;">No hay boletas pendientes</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">Todo tu registro está al día.</p>
+  </div>
+<% end %>

@@ -1,8 +1,13 @@
 class ReceiptsController < ApplicationController
   before_action :set_receipt, only: %i[processing status edit update show reprocess destroy]
-
+  rescue_from ActiveRecord::RecordNotFound, with: :receipt_not_found
   def index
     @receipts = Receipt.saved.recent
+  end
+
+  # METODO PARA MOSTRAR BOLETAS PENDIENTES
+  def pending
+  @receipts = Receipt.where.not(status: "saved").recent
   end
 
   # METODO PARA MOSTRAR BOLETAS
@@ -72,6 +77,10 @@ class ReceiptsController < ApplicationController
   end
 
   private
+
+  def receipt_not_found
+    redirect_to receipts_path, alert: "La boleta que buscas no existe o fue eliminada."
+  end
 
   # METODO PARA BUSCAR LA BOLETA POR ID
   def set_receipt
