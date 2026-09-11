@@ -12,6 +12,8 @@ Rails.application.routes.draw do
       get :pending
     end
   end
-  Rails.application.routes.append do
+end
+
+Rails.application.routes.append do
   match "*unmatched", to: redirect("/"), via: :all
 end
