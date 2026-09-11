@@ -1,8 +1,6 @@
 Rails.application.routes.draw do
-  resources :posts
-   root to: "receipts#new"
-   get "receipts/new" => "receipts#new", as: :new_receipt
-
+  root to: "receipts#new"
+  get "receipts/new" => "receipts#new", as: :new_receipt
 
   resources :receipts, only: %i[create edit update index show destroy] do
     member do
@@ -10,5 +8,9 @@ Rails.application.routes.draw do
       get :status
       post :reprocess
     end
+    collection do
+      get :pending
+    end
   end
+  match "*unmatched", to: redirect("/"), via: :all
 end

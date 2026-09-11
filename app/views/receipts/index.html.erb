@@ -1,12 +1,16 @@
 <% content_for :title, "Boletas Guardadas" %>
 
-<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; flex-direction: column;">
   <div>
     <h1 class="card-title" style="font-size: 1.6rem;">Boletas guardadas</h1>
     <p class="card-subtitle">Registro de comprobantes verificados en tu sistema.</p>
   </div>
 
-  <%= link_to "Subir nueva boleta", new_receipt_path, class: "btn btn-primary" %>
+
+  <div style="display: flex; gap: 0.75rem;">
+    <%= link_to "Ver boletas pendientes", pending_receipts_path, class: "btn btn-secondary" %>
+    <%= link_to "Subir nueva boleta", new_receipt_path, class: "btn btn-primary" %>
+  </div>
 </div>
 
 <% if @receipts.any? %>
