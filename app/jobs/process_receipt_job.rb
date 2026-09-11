@@ -26,9 +26,18 @@ class ProcessReceiptJob < ApplicationJob
         ai_raw_response: ai_result[:raw_response],
         status: "failed"
       )
+    elsif invalid_receipt?(ai_result)
+      receipt.update!(
+        ai_raw_response: ai_result[:raw_response],
+        status: "failed"
+      )
     else
       receipt.update!(receipt_attributes_from_ai(ai_result))
     end
+  end
+
+  def invalid_receipt?(ai_result)
+    ai_result[:merchant_name].blank? && ai_result[:total_amount].blank?
   end
 
   def receipt_attributes_from_ai(ai_result)
