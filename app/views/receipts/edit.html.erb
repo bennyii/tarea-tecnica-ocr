@@ -24,8 +24,12 @@
           <% if @receipt.file.content_type.to_s.start_with?("image/") %>
             <%= image_tag @receipt.file, class: "document-preview-img", alt: "Comprobante" %>
           <% elsif @receipt.file.content_type == "application/pdf" %>
-            <div style="padding: 3rem 1rem; text-align: center;">
-              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Documento PDF adjunto</p>
+            <iframe
+              src="<%= rails_blob_path(@receipt.file, disposition: 'inline') %>"
+              title="Vista previa del comprobante PDF"
+              style="width: 100%; height: 480px; border: none; border-radius: var(--radius-sm);">
+            </iframe>
+            <div style="text-align: center; margin-top: 0.75rem;">
               <%= link_to "Abrir PDF en pestaña nueva",
                   rails_blob_path(@receipt.file, disposition: "inline"),
                   target: "_blank",
@@ -48,7 +52,7 @@
       </div>
 
       <%= form_with(model: @receipt, url: receipt_path(@receipt), method: :patch, local: true) do |f| %>
-        
+
         <% if @receipt.errors.any? %>
           <div class="alert alert-danger">
             <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem;">
@@ -111,10 +115,8 @@
           <%= link_to "Cancelar", receipts_path, class: "btn btn-secondary" %>
           <%= f.submit "Guardar boleta", class: "btn btn-primary", id: "save-receipt-btn" %>
         </div>
+      <% end %>
 
-      <% end %> <!-- FIN DEL FORMULARIO PRINCIPAL -->
-
-      <!-- Botón de Descartar FUERA del formulario principal de edición -->
       <div style="margin-top: 1rem; display: flex; justify-content: flex-start;">
         <%= button_to "Descartar",
             receipt_path(@receipt),
@@ -122,14 +124,6 @@
             class: "btn btn-danger btn-sm",
             data: { turbo_confirm: "¿Descartar este comprobante?" } %>
       </div>
-
-      <% if @receipt.ai_raw_response.present? %>
-        <details style="margin-top: 1.5rem; font-size: 0.8125rem;">
-          <summary style="color: var(--text-dim); cursor: pointer; user-select: none;">Respuesta cruda de la IA</summary>
-          <pre style="margin-top: 0.5rem; padding: 0.75rem; background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); max-height: 200px; overflow-y: auto; white-space: pre-wrap;"><%= @receipt.ai_raw_response %></pre>
-        </details>
-      <% end %>
-
     </div>
   </div>
 </div>
