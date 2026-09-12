@@ -51,7 +51,7 @@ class GeminiOcrService
     @receipt = receipt
     @client = client || default_connection
     @api_key = ENV.fetch("GEMINI_API_KEY", nil)
-    # Usamos un modelo flash moderno y multimodal compatible con imágenes/PDFs
+    # Se usa un modelo Flash moderno y multimodal compatible con imágenes y PDFs.
     @model = ENV.fetch("GEMINI_MODEL", "gemini-3.5-flash-lite")
   end
 

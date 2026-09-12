@@ -1,19 +1,19 @@
 module ReceiptsHelper
-  # Formatea montos en pesos chilenos ($ 12.345)
+  # Formatea montos en pesos chilenos
   def format_clp(amount)
     return "—" if amount.blank?
 
     number_to_currency(amount, unit: "$ ", delimiter: ".", separator: ",", precision: 0)
   end
 
-  # Formato de fecha chilena legible (ej: 10 de Septiembre, 2026)
+  # Formatea una fecha con estilo chileno y legible.
   def format_receipt_date(date)
     return "—" if date.blank?
 
     l(date, format: :long) rescue date.strftime("%d/%m/%Y")
   end
 
-  # Badge de estado con estilo semántico
+
   def receipt_status_badge(status)
     status_str = status.to_s
     label, css_class = case status_str

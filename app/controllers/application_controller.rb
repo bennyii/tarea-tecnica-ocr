@@ -1,7 +1,10 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
+  # Base controller for the application.
+  # It centralizes browser compatibility rules and cache invalidation behavior used across the app.
+
+  # Restrict access to modern browsers to ensure compatibility with the app's frontend features.
   allow_browser versions: :modern
 
-  # Changes to the importmap will invalidate the etag for HTML responses
+  # Invalidate cached HTML responses when the import map changes so the browser always loads the latest assets.
   stale_when_importmap_changes
 end
