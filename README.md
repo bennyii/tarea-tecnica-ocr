@@ -2,7 +2,7 @@
 
 Aplicación web desarrollada en **Ruby on Rails 8** que permite subir boletas de compra chilenas (PDF o imágenes), extraer automáticamente la información clave mediante Inteligencia Artificial (**Gemini API**) y estructurar los datos para su revisión y almacenamiento en **PostgreSQL**.
 
-🔗 **Demo en producción:** https://tarea-tecnica-ocr.onrender.com/
+ **Demo en producción:** https://tarea-tecnica-ocr.onrender.com/
 
 ---
 
