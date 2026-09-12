@@ -1,8 +1,3 @@
-/*
- * Design System: Premium Dark Aesthetic
- * Estilo oscuro sofisticado con acentos eléctricos (índigo y esmeralda), glassmorphism y acabado profesional.
- */
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
@@ -85,7 +80,7 @@ body {
   flex-direction: column;
 }
 
-/* Layout */
+/* Layout global */
 .app-container {
   width: 100%;
   max-width: 1120px;
@@ -94,7 +89,7 @@ body {
   flex: 1;
 }
 
-/* Navbar  */
+/* Navegación principal */
 .app-navbar {
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
@@ -154,7 +149,7 @@ body {
   border: 1px solid rgba(99, 102, 241, 0.25);
 }
 
-/* Tarjetas (Cards) */
+/* Cards y contenedores principales */
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -181,7 +176,7 @@ body {
   margin-top: 0.35rem;
 }
 
-/* Botones */
+/* Botones y acciones principales */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -255,7 +250,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* Badges */
+/* Badges de estado */
 .badge {
   display: inline-flex;
   align-items: center;

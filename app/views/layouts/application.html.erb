@@ -21,7 +21,7 @@
           Boletas
         <% end %>
 
-        <nav>
+        <nav aria-label="Navegación principal">
           <ul class="nav-menu">
             <li>
               <%= link_to "Guardadas", receipts_path, class: "nav-link #{'active' if current_page?(receipts_path)}" %>

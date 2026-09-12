@@ -1,34 +1,38 @@
 class ReceiptsController < ApplicationController
+  # Carga la boleta para las acciones que operan sobre un registro específico.
   before_action :set_receipt, only: %i[processing status edit update show reprocess destroy]
+
+  # Redirige a una ruta amigable cuando la boleta solicitada no existe.
   rescue_from ActiveRecord::RecordNotFound, with: :receipt_not_found
 
+  # Muestra la lista de boletas ya guardadas y validadas por el usuario.
   def index
     @receipts = Receipt.saved.recent
   end
 
-  # METODO PARA MOSTRAR BOLETAS PENDIENTES
+  # Muestra las boletas que aún están pendientes de revisión o procesamiento.
   def pending
     @receipts = Receipt.where.not(status: "saved").recent
   end
 
-  # METODO PARA MOSTRAR BOLETAS
+  # Renderiza la vista de detalle de una boleta.
   def show; end
 
-  # METODO PARA CREAR NUEVAS BOLETAS
+  # Crea un nuevo registro antes de cargar el documento.
   def new
     @receipt = Receipt.new
   end
 
-  # METODO PARA EDITAR BOLETAS (CON FILTRO ANTI-BASURA)
+  # Edita una boleta y descarta resultados de OCR claramente inválidos.
   def edit
-    # Si la IA no encontró ni el comercio ni el total, asumimos que no es una boleta válida.
+    # Si tanto el comercio como el total están vacíos, la IA no encontró una boleta válida.
     if @receipt.merchant_name.blank? && @receipt.total_amount.blank?
       @receipt.destroy
       redirect_to new_receipt_path, alert: "El documento subido no parece ser una boleta válida. Por favor, sube una foto clara del comprobante."
     end
   end
 
-  # METODO PARA CREAR BOLETAS
+  # Sube un archivo y encola el procesamiento OCR en segundo plano.
   def create
     uploaded_file = receipt_create_params[:file]
     existing = find_duplicate_receipt(uploaded_file)
@@ -47,7 +51,7 @@ class ReceiptsController < ApplicationController
     end
   end
 
-  # METODO PARA ACTUALIZAR LA BOLETA
+  # Guarda los datos corregidos una vez que el usuario valida la extracción de la IA.
   def update
     if @receipt.update(receipt_update_params.merge(status: "saved"))
       redirect_to receipt_path(@receipt), notice: "¡Boleta guardada con éxito!"
@@ -56,12 +60,12 @@ class ReceiptsController < ApplicationController
     end
   end
 
-  # METODO PARA DETECTAR SI LA BOLETA ESTA EN UN ESTADO TERMINAL
+  # Redirige al usuario al formulario de revisión cuando el documento llegó a un estado terminal.
   def processing
     redirect_to edit_receipt_path(@receipt) if terminal_status?
   end
 
-  # METODO PARA CONSULTAR EL ESTADO (POLLING)
+  # Proporciona información del estado para que el frontend pueda saber si el procesamiento terminó.
   def status
     render json: {
       id: @receipt.id,
@@ -71,13 +75,13 @@ class ReceiptsController < ApplicationController
     }
   end
 
-  # METODO PARA REINTENTAR EL PROCESAMIENTO DE LA BOLETA
+  # Reintenta el procesamiento OCR de una boleta que necesita otro intento.
   def reprocess
     ProcessReceiptJob.perform_later(@receipt.id)
     redirect_to processing_receipt_path(@receipt), notice: "Reintentando procesamiento..."
   end
 
-  # METODO PARA ELIMINAR BOLETAS
+  # Elimina una boleta del sistema.
   def destroy
     @receipt.destroy
     redirect_to receipts_path, notice: "Boleta eliminada correctamente."
@@ -85,21 +89,22 @@ class ReceiptsController < ApplicationController
 
   private
 
+  # Fallback amigable cuando no se puede encontrar la boleta.
   def receipt_not_found
     redirect_to receipts_path, alert: "La boleta que buscas no existe o fue eliminada."
   end
 
-  # METODO PARA BUSCAR LA BOLETA POR ID
+  # Busca una boleta por ID para las acciones de miembro.
   def set_receipt
     @receipt = Receipt.find(params[:id])
   end
 
-  # METODO PARA DETECTAR SI LA BOLETA ESTA EN UN ESTADO TERMINAL
+  # Devuelve true cuando la boleta ya no se está procesando y puede mostrarse al usuario.
   def terminal_status?
     %w[ready_for_review failed saved].include?(@receipt.status)
   end
 
-  # METODO PARA DETECTAR ARCHIVOS DUPLICADOS
+  # Detecta archivos duplicados comparando el checksum del documento para evitar envíos repetidos.
   def find_duplicate_receipt(uploaded_file)
     return nil unless uploaded_file.respond_to?(:read)
 
@@ -117,7 +122,7 @@ class ReceiptsController < ApplicationController
            .first
   end
 
-  # METODO PARA REDIRECCIONAR AL USUARIO DEPENDIENDO EL ESTADO DEL ARCHIVO DUPLICADO
+  # Redirige al usuario según si el registro duplicado ya está guardado o sigue pendiente.
   def redirect_to_existing(receipt)
     if receipt.saved?
       redirect_to receipt_path(receipt), flash: { warning: "Esta boleta ya fue guardada anteriormente." }
@@ -126,12 +131,12 @@ class ReceiptsController < ApplicationController
     end
   end
 
-  # METODO PARA PERMITIR LA CREACION DE BOLETAS
+
   def receipt_create_params
     params.require(:receipt).permit(:file)
   end
 
-  # METODO PARA PERMITIR LA ACTUALIZACION DE BOLETAS
+
   def receipt_update_params
     params.require(:receipt).permit(
       :merchant_name,

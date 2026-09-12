@@ -1,5 +1,6 @@
 <% content_for :title, "Boletas Guardadas" %>
 
+<%# Dashboard of saved receipts: total metrics and the full list of approved records. %>
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; flex-direction: column;">
   <div>
     <h1 class="card-title" style="font-size: 1.6rem;">Boletas guardadas</h1>
@@ -17,7 +18,7 @@
   <% total_monto = @receipts.sum { |r| r.total_amount || 0 } %>
   <% total_iva = @receipts.sum { |r| r.tax_amount || 0 } %>
 
-  <!-- Métricas Estilizadas -->
+  
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Comprobantes</div>

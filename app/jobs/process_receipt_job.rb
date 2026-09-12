@@ -1,6 +1,8 @@
 class ProcessReceiptJob < ApplicationJob
+  # Procesa el pipeline OCR en segundo plano para mantener la experiencia del usuario receptiva.
   queue_as :default
 
+  # Reintenta problemas de red
   retry_on Faraday::TimeoutError, "GeminiOcrService::TransientError",
            wait: :polynomially_longer, attempts: 5
 
@@ -18,6 +20,7 @@ class ProcessReceiptJob < ApplicationJob
 
   private
 
+  # Ejecuta el flujo multimodal OCR y persiste el resultado en la base de datos.
   def execute_pipeline(receipt)
     ai_result = GeminiOcrService.call(receipt)
 
@@ -36,10 +39,12 @@ class ProcessReceiptJob < ApplicationJob
     end
   end
 
+  # Marca el documento como inválido cuando la IA no puede identificar con confianza el comercio o el total.
   def invalid_receipt?(ai_result)
     ai_result[:merchant_name].blank? && ai_result[:total_amount].blank?
   end
 
+  # Mapea la respuesta de la IA a atributos válidos de la boleta antes de guardarla.
   def receipt_attributes_from_ai(ai_result)
     attrs = ai_result.slice(:merchant_name, :rut_emisor, :document_number, :document_type,
                             :net_amount, :tax_amount, :total_amount)
@@ -50,6 +55,7 @@ class ProcessReceiptJob < ApplicationJob
     )
   end
 
+  # Convierte fechas ISO del LLM a un objeto Date de Rails cuando es posible.
   def parse_date(date_str)
     return nil if date_str.blank?
 
@@ -58,6 +64,7 @@ class ProcessReceiptJob < ApplicationJob
     nil
   end
 
+  # Registra la falla en logs y deja la boleta en estado fallido para intervención del usuario.
   def handle_failure(receipt, error)
     Rails.logger.error("ProcessReceiptJob failed for Receipt ##{receipt&.id}: #{error.message}")
     receipt&.update(status: "failed")
